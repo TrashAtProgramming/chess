@@ -10,40 +10,55 @@ valid_moves = []
 takeable = []
 black_castle = True
 white_castle = True
-#board = [
-#    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-#    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-#    ['__', '__', '__', '__', '__', '__', '__', '__'],
-#    ['__', '__', '__', '__', '__', '__', '__', '__'],
-#    ['__', '__', '__', '__', '__', '__', '__', '__'],
-#    ['__', '__', '__', '__', '__', '__', '__', '__'],
-#    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-#    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
-#    ]
+playing = True
+go = "w"
 board = [
     ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', '__', 'bp'],
-    ['__', '__', '__', '__', '__', '__', 'bk', '__'],
-    ['bp', '__', 'bp', '__', '__', '__', '__', '__'],
-    ['__', 'wp', 'wq', 'wk', 'wn', '__', 'wb', '__'],
-    ['__', '__', 'wp', '__', '__', 'bn', '__', '__'],
-    ['__', '__', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-    ['wb', '__', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
-]
+    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+    ['__', '__', '__', '__', '__', '__', '__', '__'],
+    ['__', '__', '__', '__', '__', '__', '__', '__'],
+    ['__', '__', '__', '__', '__', '__', '__', '__'],
+    ['__', '__', '__', '__', '__', '__', '__', '__'],
+    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
+    ]
 for row in range(len(board)):
     for column in range(len(board[row])):
         x = (column * TILE_SIZE)+30
         y = (row * TILE_SIZE)+30
         tile = board[row][column]
-        piece=Actor((board[row][column]),(x,y))
+        piece = Actor((board[row][column]),(x,y))
         pieces.append(piece)
 
 def move(piece,to):
-    img=piece.image
-    piece.image = "__"
+    global go
+    if go == "w":
+        go = "b"
+    else:
+        go = "w"
+    img = piece.image
+    for i in pieces:
+        if piece.pos == i.pos:
+            i.image = "__"
+            position = find_piece(i)
+            x, y = position
+            x = int(x)
+            y = int(y)
+            board[x][y] = "__"
     for i in pieces:
         if i.pos == to:
             i.image = img
+            position = find_piece(i)
+            x, y = position
+            x = int(x)
+            y = int(y)
+            if board[x][y] == "wk":
+                print("Black wins.")
+            elif board[x][y] == "bk":
+                print("White wins.")
+            board[x][y] = img
+
+
 def draw():
     screen.clear()
     background.draw()
@@ -56,18 +71,31 @@ def draw():
         squares.draw()
 
 def on_mouse_down(pos, button):
+    global selected, go
+    if selected != 0:
+        for i in range(len(valid_moves)):
+            if button == mouse.LEFT and valid_moves[i].collidepoint(pos):
+                move(selected, valid_moves[i].pos)
+                selected = 0
+        for i in range(len(takeable)):
+            if button == mouse.LEFT and takeable[i].collidepoint(pos):
+                move(selected, takeable[i].pos)
+                selected = 0
+    else:
+        highlight.image = "__"
     valid_moves.clear()
     takeable.clear()
     for piece in pieces:
-        if button == mouse.LEFT and piece.collidepoint(pos):
+        if button == mouse.LEFT and piece.collidepoint(pos) and piece.image[0] == go:
             highlight.image = "--"
-            highlight.x=piece.x
-            highlight.y=piece.y
+            highlight.x = piece.x
+            highlight.y = piece.y
             selected = piece
             check_valid(piece)
             if piece.image == "__":
                 highlight.image = "__"
                 selected = 0
+
 
 def find_piece(piece):
     x = int((piece.y - 30) / 60)
@@ -75,38 +103,38 @@ def find_piece(piece):
     return (x, y)
 
 def check_valid(piece):
-    if piece.image == "wr":
-        check_rook_moves(piece,"b")
-    if piece.image == "br":
-        check_rook_moves(piece,"w")
-    if piece.image == "wb":
-        check_bishop_moves(piece,"b")
-    if piece.image == "bb":
-        check_bishop_moves(piece,"w")
-    if piece.image == "wq":
-        check_rook_moves(piece,"b")
-        check_bishop_moves(piece,"b")
-    if piece.image == "bq":
-        check_rook_moves(piece,"w")
-        check_bishop_moves(piece,"w")  
-    if piece.image == "wp":
-        check_pawn_moves(piece,"b")
-    if piece.image == "bp":
-        check_pawn_moves(piece,"w")
-    if piece.image == "wn":
-        check_knight_moves(piece,"b")
-    if piece.image == "bn":
-        check_knight_moves(piece,"w")
-    if piece.image == "wk":
-        check_king_moves(piece,"b")
-    if piece.image == "bk":
-        check_king_moves(piece,"w")
+    piece_types = {
+        'wr': check_rook_moves,
+        'br': check_rook_moves,
+        'wb': check_bishop_moves,
+        'bb': check_bishop_moves,
+        'wq': check_queen_moves,
+        'bq': check_queen_moves,
+        'wp': check_pawn_moves,
+        'bp': check_pawn_moves,
+        'wn': check_knight_moves,
+        'bn': check_knight_moves,
+        'wk': check_king_moves,
+        'bk': check_king_moves,
+    }
+    piece_type = piece.image
+    if piece_type[0] == 'b':
+        op_colour = 'w'
+    else:
+        op_colour = 'b'
+    if piece_type in piece_types:
+        piece_types[piece_type](piece,op_colour)
+
+def check_queen_moves(piece,op_colour):
+    check_rook_moves(piece,op_colour)
+    check_bishop_moves(piece,op_colour)
 
 def check_rook_moves(piece,op_colour):
     position = find_piece(piece)
     x, y = position
     x = int(x)
     y = int(y)
+
     # Check valid moves to the left
     for i in range(y - 1, -1, -1):
         current_square = board[x][i]
@@ -117,6 +145,7 @@ def check_rook_moves(piece,op_colour):
             break
         else:
             break
+
     # Check valid moves to the right
     for i in range(y + 1, 8):
         current_square = board[x][i]
@@ -127,6 +156,7 @@ def check_rook_moves(piece,op_colour):
             break
         else:
             break
+
     # Check valid moves upwards
     for i in range(x - 1, -1, -1):
         current_square = board[i][y]
@@ -137,6 +167,7 @@ def check_rook_moves(piece,op_colour):
             break
         else:
             break
+
     # Check valid moves downwards
     for i in range(x + 1, 8):
         current_square = board[i][y]
@@ -154,6 +185,7 @@ def check_bishop_moves(piece, op_colour):
     x, y = position
     x = int(x)
     y = int(y)
+
     # Check valid moves to the top-left
     for i, j in zip(range(x-1, -1, -1), range(y-1, -1, -1)):
         current_square = board[i][j]
@@ -214,7 +246,7 @@ def check_pawn_moves(piece,op_colour):
         if y < 7:
             if board[x-1][y+1][0]=="b":
                 takeable.append(Actor(("take"),((y+1)*60+30,(x-1)*60+30))) 
-        if x == 6 and board[x-2][y] == "__":
+        if x == 6 and board[x-2][y] == "__" and board[x-1][y] == "__":
             valid_moves.append(Actor(("moves"),(y*60+30,(x-2)*60+30)))
 
     #Check moves for black pawn
@@ -227,7 +259,7 @@ def check_pawn_moves(piece,op_colour):
         if y < 7:
             if board[x+1][y+1][0]=="w":
                 takeable.append(Actor(("take"),((y+1)*60+30,(x+1)*60+30))) 
-        if x == 1 and board[x+2][y] == "__":
+        if x == 1 and board[x+2][y] == "__" and board[x+1][y] == "__":
             valid_moves.append(Actor(("moves"),(y*60+30,(x+2)*60+30)))
     #TODO: add en passeunt rule
     #TODO: add promotion
@@ -237,6 +269,7 @@ def check_knight_moves(piece,op_colour):
     x, y = position
     x = int(x)
     y = int(y)
+
     #The different offsets for the knight movement
     knight_moves = [
         [ 2, 1],
@@ -262,6 +295,7 @@ def check_king_moves(piece,op_colour):
     x, y = position
     x = int(x)
     y = int(y)
+    
     #Check squares around king
     for i in range(-1,2):
         for j in range(-1,2):
@@ -274,5 +308,5 @@ def check_king_moves(piece,op_colour):
             elif board[new_x][new_y] == "__":
                 valid_moves.append(Actor(("moves"),(new_y*60+30,new_x*60+30)))
     #TODO: add castling
-            
+    
 pgzrun.go()
