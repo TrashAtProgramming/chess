@@ -67,8 +67,6 @@ def move(piece, to):
             # Move rook if castling
             castle_check(to, img)
     # Check if the piece is a pawn that just moved two squares
-    print(piece.pos)
-    print(to)
     if img == "wp" and piece.pos[1] == 390.0 and to[1] == 270.0:
         # Store the file of the pawn that just moved two squares
         last_move = to[0]

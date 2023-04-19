@@ -67,8 +67,6 @@ def move(piece, to):
             # Move rook if castling
             castle_check(to, img)
     # Check if the piece is a pawn that just moved two squares
-    print(piece.pos)
-    print(to)
     if img == "wp" and piece.pos[1] == 390.0 and to[1] == 270.0:
         # Store the file of the pawn that just moved two squares
         last_move = to[0]
@@ -102,11 +100,14 @@ def check_promotion(to, img):
         "Knight": colour + "n",
         "Bishop": colour + "b"
     }
+    # Check pawn promotion
     if to[1] == 30.0 and img == "wp" or to[1] == 450.0 and img == "bp":
         promote = 0
         while promote not in promotes:
             promote = input("What would you like to promote to: ")
         return promotes[promote]
+    elif to[1] == 30.0 and img == "wc" or to[1] == 450.0 and img == "bc":
+        return img[0]+"j"
     else:
         return img
 
@@ -205,7 +206,9 @@ def check_valid(piece):
         'wk': check_king_moves,
         'bk': check_king_moves,
         'wc': check_calvin_moves,
-        'bc': check_calvin_moves
+        'bc': check_calvin_moves,
+        'wj': check_jerry_moves,
+        'bj': check_jerry_moves
     }
     piece_type = piece.image
     if piece_type[0] == 'b':
@@ -219,6 +222,15 @@ def check_valid(piece):
 def check_queen_moves(piece, op_colour):
     check_rook_moves(piece, op_colour)
     check_bishop_moves(piece, op_colour)
+
+
+def check_jerry_moves(piece, op_colour):
+    # Check moves
+    for piece in pieces:
+        if piece.image == "__":
+            valid_moves.append(Actor(("moves"), (piece.x, piece.y)))
+        elif piece.image[0] == op_colour:
+            takeable.append(Actor(("take"), (piece.x, piece.y)))
 
 
 def check_rook_moves(piece, op_colour):
