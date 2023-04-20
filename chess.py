@@ -80,7 +80,7 @@ def check_en_passant(piece, to):
     global last_move
     # Check en passant for white
     if piece.image == "wp" and to == (last_move, 150):
-        board[4][int((last_move-30)/60)] = "__"
+        board[3][int((last_move-30)/60)] = "__"
         for i in pieces:
             if i.pos == (last_move, 210):
                 i.image = "__"
@@ -121,7 +121,7 @@ def castle_check(to, img):
             board[7][7] = "__"
             board[7][5] = "wr"
         # Long castle
-        if img == "wk" and to == (150.0, 450.0) and white_castle:
+        if img == "wk" and to == (150.0, 450.0):
             pieces[56].image = "__"
             pieces[59].image = "wr"
             board[7][0] = "__"
@@ -136,7 +136,7 @@ def castle_check(to, img):
             board[0][7] = "__"
             board[0][5] = "br"
         # Long castle
-        if img == "bk" and to == (150.0, 30.0) and black_castle:
+        if img == "bk" and to == (150.0, 30.0):
             pieces[0].image = "__"
             pieces[3].image = "br"
             board[0][0] = "__"
