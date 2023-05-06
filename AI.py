@@ -1,4 +1,5 @@
 import pgzrun
+
 TILE_SIZE = 60
 WIDTH = 480
 HEIGHT = 480
@@ -14,19 +15,19 @@ playing = True
 last_move = None  # Keep track of the last move made
 go = "w"
 board = [
-    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-    ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
+    ["br", "bn", "bb", "bq", "bk", "bb", "__", "br"],
+    ["__", "bp", "__", "bp", "bp", "bp", "__", "bp"],
+    ["__", "__", "__", "__", "__", "__", "wp", "__"],
+    ["__", "__", "__", "__", "__", "__", "__", "__"],
+    ["__", "__", "__", "__", "__", "__", "__", "__"],
+    ["__", "__", "__", "__", "__", "__", "__", "__"],
+    ["__", "__", "__", "__", "__", "__", "wp", "wp"],
+    ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"],
 ]
 for row in range(len(board)):
     for column in range(len(board[row])):
-        x = (column * TILE_SIZE)+30
-        y = (row * TILE_SIZE)+30
+        x = (column * TILE_SIZE) + 30
+        y = (row * TILE_SIZE) + 30
         tile = board[row][column]
         piece = Actor((board[row][column]), (x, y))
         pieces.append(piece)
@@ -80,13 +81,13 @@ def check_en_passant(piece, to):
     global last_move
     # Check en passant for white
     if piece.image == "wp" and to == (last_move, 150):
-        board[3][int((last_move-30)/60)] = "__"
+        board[3][int((last_move - 30) / 60)] = "__"
         for i in pieces:
             if i.pos == (last_move, 210):
                 i.image = "__"
     # Check en passant for black
     if piece.image == "bp" and to == (last_move, 330):
-        board[4][int((last_move-30)/60)] = "__"
+        board[4][int((last_move - 30) / 60)] = "__"
         for i in pieces:
             if i.pos == (last_move, 270):
                 i.image = "__"
@@ -98,7 +99,7 @@ def check_promotion(to, img):
         "Queen": colour + "q",
         "Rook": colour + "r",
         "Knight": colour + "n",
-        "Bishop": colour + "b"
+        "Bishop": colour + "b",
     }
     if to[1] == 30.0 and img == "wp" or to[1] == 450.0 and img == "bp":
         promote = 0
@@ -145,6 +146,9 @@ def castle_check(to, img):
 
 def draw():
     screen.clear()
+    for piece in pieces:
+        selected = piece
+        check_valid(piece)
     background.draw()
     highlight.draw()
     for take in takeable:
@@ -190,24 +194,24 @@ def find_piece(piece):
 
 def check_valid(piece):
     piece_types = {
-        'wr': check_rook_moves,
-        'br': check_rook_moves,
-        'wb': check_bishop_moves,
-        'bb': check_bishop_moves,
-        'wq': check_queen_moves,
-        'bq': check_queen_moves,
-        'wp': check_pawn_moves,
-        'bp': check_pawn_moves,
-        'wn': check_knight_moves,
-        'bn': check_knight_moves,
-        'wk': check_king_moves,
-        'bk': check_king_moves,
+        "wr": check_rook_moves,
+        "br": check_rook_moves,
+        "wb": check_bishop_moves,
+        "bb": check_bishop_moves,
+        "wq": check_queen_moves,
+        "bq": check_queen_moves,
+        "wp": check_pawn_moves,
+        "bp": check_pawn_moves,
+        "wn": check_knight_moves,
+        "bn": check_knight_moves,
+        "wk": check_king_moves,
+        "bk": check_king_moves,
     }
     piece_type = piece.image
-    if piece_type[0] == 'b':
-        op_colour = 'w'
+    if piece_type[0] == "b":
+        op_colour = "w"
     else:
-        op_colour = 'b'
+        op_colour = "b"
     if piece_type in piece_types:
         piece_types[piece_type](piece, op_colour)
 
@@ -226,9 +230,9 @@ def check_rook_moves(piece, op_colour):
     for i in range(y - 1, -1, -1):
         current_square = board[x][i]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (i*60+30, x*60+30)))
+            valid_moves.append(Actor(("moves"), (i * 60 + 30, x * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (i*60+30, x*60+30)))
+            takeable.append(Actor(("take"), (i * 60 + 30, x * 60 + 30)))
             break
         else:
             break
@@ -236,9 +240,9 @@ def check_rook_moves(piece, op_colour):
     for i in range(y + 1, 8):
         current_square = board[x][i]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (i*60+30, x*60+30)))
+            valid_moves.append(Actor(("moves"), (i * 60 + 30, x * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (i*60+30, x*60+30)))
+            takeable.append(Actor(("take"), (i * 60 + 30, x * 60 + 30)))
             break
         else:
             break
@@ -246,9 +250,9 @@ def check_rook_moves(piece, op_colour):
     for i in range(x - 1, -1, -1):
         current_square = board[i][y]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (y*60+30, i*60+30)))
+            valid_moves.append(Actor(("moves"), (y * 60 + 30, i * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (y*60+30, i*60+30)))
+            takeable.append(Actor(("take"), (y * 60 + 30, i * 60 + 30)))
             break
         else:
             break
@@ -256,9 +260,9 @@ def check_rook_moves(piece, op_colour):
     for i in range(x + 1, 8):
         current_square = board[i][y]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (y*60+30, i*60+30)))
+            valid_moves.append(Actor(("moves"), (y * 60 + 30, i * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (y*60+30, i*60+30)))
+            takeable.append(Actor(("take"), (y * 60 + 30, i * 60 + 30)))
             break
         else:
             break
@@ -270,42 +274,42 @@ def check_bishop_moves(piece, op_colour):
     x = int(x)
     y = int(y)
     # Check valid moves to the top-left
-    for i, j in zip(range(x-1, -1, -1), range(y-1, -1, -1)):
+    for i, j in zip(range(x - 1, -1, -1), range(y - 1, -1, -1)):
         current_square = board[i][j]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (j*60+30, i*60+30)))
+            valid_moves.append(Actor(("moves"), (j * 60 + 30, i * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (j*60+30, i*60+30)))
+            takeable.append(Actor(("take"), (j * 60 + 30, i * 60 + 30)))
             break
         else:
             break
     # Check valid moves to the top-right
-    for i, j in zip(range(x-1, -1, -1), range(y+1, 8)):
+    for i, j in zip(range(x - 1, -1, -1), range(y + 1, 8)):
         current_square = board[i][j]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (j*60+30, i*60+30)))
+            valid_moves.append(Actor(("moves"), (j * 60 + 30, i * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (j*60+30, i*60+30)))
+            takeable.append(Actor(("take"), (j * 60 + 30, i * 60 + 30)))
             break
         else:
             break
     # Check valid moves to the bottom-left
-    for i, j in zip(range(x+1, 8), range(y-1, -1, -1)):
+    for i, j in zip(range(x + 1, 8), range(y - 1, -1, -1)):
         current_square = board[i][j]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (j*60+30, i*60+30)))
+            valid_moves.append(Actor(("moves"), (j * 60 + 30, i * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (j*60+30, i*60+30)))
+            takeable.append(Actor(("take"), (j * 60 + 30, i * 60 + 30)))
             break
         else:
             break
     # Check valid moves to the bottom-right
-    for i, j in zip(range(x+1, 8), range(y+1, 8)):
+    for i, j in zip(range(x + 1, 8), range(y + 1, 8)):
         current_square = board[i][j]
         if current_square == "__":
-            valid_moves.append(Actor(("moves"), (j*60+30, i*60+30)))
+            valid_moves.append(Actor(("moves"), (j * 60 + 30, i * 60 + 30)))
         elif current_square[0] == op_colour:
-            takeable.append(Actor(("take"), (j*60+30, i*60+30)))
+            takeable.append(Actor(("take"), (j * 60 + 30, i * 60 + 30)))
             break
         else:
             break
@@ -319,31 +323,31 @@ def check_pawn_moves(piece, op_colour):
     y = int(y)
     # Check moves for white pawn
     if op_colour == "b":
-        if board[x-1][y] == "__":
-            valid_moves.append(Actor(("moves"), (y*60+30, (x-1)*60+30)))
+        if board[x - 1][y] == "__":
+            valid_moves.append(Actor(("moves"), (y * 60 + 30, (x - 1) * 60 + 30)))
         if y > 0:
-            if board[x-1][y-1][0] == "b":
-                takeable.append(Actor(("take"), ((y-1)*60+30, (x-1)*60+30)))
+            if board[x - 1][y - 1][0] == "b":
+                takeable.append(Actor(("take"), ((y - 1) * 60 + 30, (x - 1) * 60 + 30)))
         if y < 7:
-            if board[x-1][y+1][0] == "b":
-                takeable.append(Actor(("take"), ((y+1)*60+30, (x-1)*60+30)))
-        if x == 6 and board[x-2][y] == "__" and board[x-1][y] == "__":
-            valid_moves.append(Actor(("moves"), (y*60+30, (x-2)*60+30)))
-        if x == 3 and (y*60+90 == last_move or y*60-30 == last_move):
+            if board[x - 1][y + 1][0] == "b":
+                takeable.append(Actor(("take"), ((y + 1) * 60 + 30, (x - 1) * 60 + 30)))
+        if x == 6 and board[x - 2][y] == "__" and board[x - 1][y] == "__":
+            valid_moves.append(Actor(("moves"), (y * 60 + 30, (x - 2) * 60 + 30)))
+        if x == 3 and (y * 60 + 90 == last_move or y * 60 - 30 == last_move):
             takeable.append(Actor(("take"), (last_move, 150)))
     # Check moves for black pawn
     else:
-        if board[x+1][y] == "__":
-            valid_moves.append(Actor(("moves"), (y*60+30, (x+1)*60+30)))
+        if board[x + 1][y] == "__":
+            valid_moves.append(Actor(("moves"), (y * 60 + 30, (x + 1) * 60 + 30)))
         if y > 0:
-            if board[x+1][y-1][0] == "w":
-                takeable.append(Actor(("take"), ((y-1)*60+30, (x+1)*60+30)))
+            if board[x + 1][y - 1][0] == "w":
+                takeable.append(Actor(("take"), ((y - 1) * 60 + 30, (x + 1) * 60 + 30)))
         if y < 7:
-            if board[x+1][y+1][0] == "w":
-                takeable.append(Actor(("take"), ((y+1)*60+30, (x+1)*60+30)))
-        if x == 1 and board[x+2][y] == "__" and board[x+1][y] == "__":
-            valid_moves.append(Actor(("moves"), (y*60+30, (x+2)*60+30)))
-        if x == 4 and (y*60+90 == last_move or y*60-30 == last_move):
+            if board[x + 1][y + 1][0] == "w":
+                takeable.append(Actor(("take"), ((y + 1) * 60 + 30, (x + 1) * 60 + 30)))
+        if x == 1 and board[x + 2][y] == "__" and board[x + 1][y] == "__":
+            valid_moves.append(Actor(("moves"), (y * 60 + 30, (x + 2) * 60 + 30)))
+        if x == 4 and (y * 60 + 90 == last_move or y * 60 - 30 == last_move):
             takeable.append(Actor(("take"), (last_move, 330)))
 
 
@@ -361,16 +365,17 @@ def check_knight_moves(piece, op_colour):
         [-1, 2],
         [-1, -2],
         [-2, 1],
-        [-2, -1]]
+        [-2, -1],
+    ]
     for i in range(len(knight_moves)):
         new_x = x + knight_moves[i][1]
         new_y = y + knight_moves[i][0]
         if new_x < 0 or new_x > 7 or new_y < 0 or new_y > 7:
             continue
         if board[new_x][new_y][0] == op_colour:
-            takeable.append(Actor(("take"), (new_y*60+30, new_x*60+30)))
+            takeable.append(Actor(("take"), (new_y * 60 + 30, new_x * 60 + 30)))
         elif board[new_x][new_y] == "__":
-            valid_moves.append(Actor(("moves"), (new_y*60+30, new_x*60+30)))
+            valid_moves.append(Actor(("moves"), (new_y * 60 + 30, new_x * 60 + 30)))
 
 
 def check_king_moves(piece, op_colour):
@@ -387,22 +392,47 @@ def check_king_moves(piece, op_colour):
             if new_x < 0 or new_x > 7 or new_y < 0 or new_y > 7 or (i == 0 and j == 0):
                 continue
             if board[new_x][new_y][0] == op_colour:
-                takeable.append(Actor(("take"), (new_y*60+30, new_x*60+30)))
+                takeable.append(Actor(("take"), (new_y * 60 + 30, new_x * 60 + 30)))
             elif board[new_x][new_y] == "__":
-                valid_moves.append(
-                    Actor(("moves"), (new_y*60+30, new_x*60+30)))
+                valid_moves.append(Actor(("moves"), (new_y * 60 + 30, new_x * 60 + 30)))
     # Check short castling for white
-    if op_colour == "b" and white_castle and board[x][y+1] == "__" and board[x][y+2] == "__" and board[x][y+3] == "wr":
-        valid_moves.append(Actor(("moves"), ((y+2)*60+30, x*60+30)))
+    if (
+        op_colour == "b"
+        and white_castle
+        and board[x][y + 1] == "__"
+        and board[x][y + 2] == "__"
+        and board[x][y + 3] == "wr"
+    ):
+        valid_moves.append(Actor(("moves"), ((y + 2) * 60 + 30, x * 60 + 30)))
     # Check long castling for white
-    if op_colour == "b" and white_castle and board[x][y-1] == "__" and board[x][y-2] == "__" and board[x][y-3] == "__" and board[x][y-4] == "wr":
-        valid_moves.append(Actor(("moves"), ((y-2)*60+30, x*60+30)))
+    if (
+        op_colour == "b"
+        and white_castle
+        and board[x][y - 1] == "__"
+        and board[x][y - 2] == "__"
+        and board[x][y - 3] == "__"
+        and board[x][y - 4] == "wr"
+    ):
+        valid_moves.append(Actor(("moves"), ((y - 2) * 60 + 30, x * 60 + 30)))
     # Check short castling for black
-    if op_colour == "w" and black_castle and board[x][y+1] == "__" and board[x][y+2] == "__" and board[x][y+3] == "br":
-        valid_moves.append(Actor(("moves"), ((y+2)*60+30, x*60+30)))
+    if (
+        op_colour == "w"
+        and black_castle
+        and board[x][y + 1] == "__"
+        and board[x][y + 2] == "__"
+        and board[x][y + 3] == "br"
+    ):
+        valid_moves.append(Actor(("moves"), ((y + 2) * 60 + 30, x * 60 + 30)))
     # Check long castling for black
-    if op_colour == "w" and black_castle and board[x][y-1] == "__" and board[x][y-2] == "__" and board[x][y-3] == "__" and board[x][y-4] == "br":
-        valid_moves.append(Actor(("moves"), ((y-2)*60+30, x*60+30)))
+    if (
+        op_colour == "w"
+        and black_castle
+        and board[x][y - 1] == "__"
+        and board[x][y - 2] == "__"
+        and board[x][y - 3] == "__"
+        and board[x][y - 4] == "br"
+    ):
+        valid_moves.append(Actor(("moves"), ((y - 2) * 60 + 30, x * 60 + 30)))
 
 
 pgzrun.go()
