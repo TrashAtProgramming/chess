@@ -15,12 +15,12 @@ last_move = None  # Keep track of the last move made
 go = "w"
 board = [
     ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bc', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bc'],
+    ['bc', 'bc', 'bp', 'bp', 'bd', 'bp', 'bc', 'bc'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['wc', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wc'],
+    ['wc', 'wc', 'wp', 'wp', 'wd', 'wp', 'wc', 'wc'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
 ]
 for row in range(len(board)):
@@ -209,7 +209,9 @@ def check_valid(piece):
         'wc': check_calvin_moves,
         'bc': check_calvin_moves,
         'wj': check_jerry_moves,
-        'bj': check_jerry_moves
+        'bj': check_jerry_moves,
+        'wd': check_dino_moves,
+        'bd': check_dino_moves,
     }
     piece_type = piece.image
     if piece_type[0] == 'b':
@@ -454,5 +456,30 @@ def check_calvin_moves(piece, op_colour):
                 valid_moves.append(
                     Actor(("moves"), ((y+1)*60+30, (x+1)*60+30)))
 
+def check_dino_moves(piece, op_colour):
+    position = find_piece(piece)
+    x, y = position
+    x = int(x)
+    y = int(y)
+# The different offsets for the dino movement
+    dino_moves = [
+        [2, 2],
+        [2, 0],
+        [2,-2],
+        [0, 2],
+        [0,0],
+        [0,-2],
+        [-2, 2],
+        [-2, 0],
+        [-2,-2]]
+    for i in range(len(dino_moves)):
+        new_x = x + dino_moves[i][1]
+        new_y = y + dino_moves[i][0]
+        if new_x < 0 or new_x > 7 or new_y < 0 or new_y > 7:
+            continue
+        if board[new_x][new_y][0] == op_colour:
+            takeable.append(Actor(("take"), (new_y*60+30, new_x*60+30)))
+        elif board[new_x][new_y] == "__":
+            valid_moves.append(Actor(("moves"), (new_y*60+30, new_x*60+30)))
 
 pgzrun.go()
