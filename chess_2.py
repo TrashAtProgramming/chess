@@ -15,12 +15,12 @@ last_move = None  # Keep track of the last move made
 go = "w"
 board = [
     ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bc', 'bc', 'bp', 'bp', 'bd', 'bp', 'bc', 'bc'],
+    ['bc', 'bt', 'bp', 'bd', 'bd', 'bp', 'bc', 'bc'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['wc', 'wc', 'wp', 'wp', 'wd', 'wp', 'wc', 'wc'],
+    ['wc', 'wc', 'wp', 'wd', 'wd', 'wp', 'wt', 'wc'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
 ]
 for row in range(len(board)):
@@ -212,6 +212,8 @@ def check_valid(piece):
         'bj': check_jerry_moves,
         'wd': check_dino_moves,
         'bd': check_dino_moves,
+        'wt': check_teddie_moves,
+        'bt': check_teddie_moves,
     }
     piece_type = piece.image
     if piece_type[0] == 'b':
@@ -482,4 +484,73 @@ def check_dino_moves(piece, op_colour):
         elif board[new_x][new_y] == "__":
             valid_moves.append(Actor(("moves"), (new_y*60+30, new_x*60+30)))
 
+def check_teddie_moves(piece, op_colour):
+    position = find_piece(piece)
+    x, y = position
+    x = int(x)
+    y = int(y)
+    # Check valid moves to the left
+    for i in range(y - 1, -1, -1):
+        current_square = board[x][i]
+        if current_square == "__":
+            valid_moves.append(Actor(("moves"), (i*60+30, x*60+30)))
+        else:
+            if current_square[0] == op_colour:
+                takeable.append(Actor(("take"), (i*60+30, x*60+30)))
+            if i-1 < 0:
+                break
+            current_square = board[x][i-1]
+            if current_square == "__":
+                valid_moves.append(Actor(("moves"), ((i-1)*60+30, x*60+30)))
+            elif current_square[0] == op_colour:
+                takeable.append(Actor(("take"), ((i-1)*60+30, x*60+30)))
+            break
+    # Check valid moves to the right
+    for i in range(y + 1, 8):
+        current_square = board[x][i]
+        if current_square == "__":
+            valid_moves.append(Actor(("moves"), (i*60+30, x*60+30)))
+        else:
+            if current_square[0] == op_colour:
+                takeable.append(Actor(("take"), (i*60+30, x*60+30)))
+            if i+1 > 7:
+                break
+            current_square = board[x][i+1]
+            if current_square == "__":
+                valid_moves.append(Actor(("moves"), ((i+1)*60+30, x*60+30)))
+            elif current_square[0] == op_colour:
+                takeable.append(Actor(("take"), ((i+1)*60+30, x*60+30)))
+            break
+    # Check valid moves upwards
+    for i in range(x - 1, -1, -1):
+        current_square = board[i][y]
+        if current_square == "__":
+            valid_moves.append(Actor(("moves"), (y*60+30, i*60+30)))
+        else:
+            if current_square[0] == op_colour:
+                takeable.append(Actor(("take"), (y*60+30, i*60+30)))
+            if i-1 < 0:
+                break
+            current_square = board[i-1][y]
+            if current_square == "__":
+                valid_moves.append(Actor(("moves"), (y*60+30, (i-1)*60+30)))
+            elif current_square[0] == op_colour:
+                takeable.append(Actor(("take"), (y*60+30, (i-1)*60+30)))
+            break
+    # Check valid moves downwards
+    for i in range(x + 1, 8):
+        current_square = board[i][y]
+        if current_square == "__":
+            valid_moves.append(Actor(("moves"), (y*60+30, i*60+30)))
+        else:
+            if current_square[0] == op_colour:
+                takeable.append(Actor(("take"), (y*60+30, i*60+30)))
+            if i+1 > 7:
+                break
+            current_square = board[i+1][y]
+            if current_square == "__":
+                valid_moves.append(Actor(("moves"), (y*60+30, (i+1)*60+30)))
+            elif current_square[0] == op_colour:
+                takeable.append(Actor(("take"), (y*60+30, (i+1)*60+30)))
+            break
 pgzrun.go()
