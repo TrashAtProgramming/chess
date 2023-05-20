@@ -15,12 +15,12 @@ last_move = None  # Keep track of the last move made
 go = "w"
 board = [
     ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bc', 'bt', 'bp', 'bd', 'bd', 'bp', 'bc', 'bc'],
+    ['bg', 'bc', 'bp', 'bt', 'bd', 'bp', 'bc', 'bg'],
+    ['__', '__', '__', 'bd', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
     ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['__', '__', '__', '__', '__', '__', '__', '__'],
-    ['wc', 'wc', 'wp', 'wd', 'wd', 'wp', 'wt', 'wc'],
+    ['__', '__', '__', 'wd', '__', '__', '__', '__'],
+    ['wg', 'wc', 'wp', 'wt', 'wd', 'wp', 'wc', 'wg'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
 ]
 for row in range(len(board)):
@@ -194,34 +194,25 @@ def find_piece(piece):
 
 def check_valid(piece):
     piece_types = {
-        'wr': check_rook_moves,
-        'br': check_rook_moves,
-        'wb': check_bishop_moves,
-        'bb': check_bishop_moves,
-        'wq': check_queen_moves,
-        'bq': check_queen_moves,
-        'wp': check_pawn_moves,
-        'bp': check_pawn_moves,
-        'wn': check_knight_moves,
-        'bn': check_knight_moves,
-        'wk': check_king_moves,
-        'bk': check_king_moves,
-        'wc': check_calvin_moves,
-        'bc': check_calvin_moves,
-        'wj': check_jerry_moves,
-        'bj': check_jerry_moves,
-        'wd': check_dino_moves,
-        'bd': check_dino_moves,
-        'wt': check_teddie_moves,
-        'bt': check_teddie_moves,
+        'r': check_rook_moves,
+        'b': check_bishop_moves,
+        'q': check_queen_moves,
+        'p': check_pawn_moves,
+        'n': check_knight_moves,
+        'k': check_king_moves,
+        'c': check_calvin_moves,
+        'j': check_jerry_moves,
+        'd': check_dino_moves,
+        't': check_teddie_moves,
+        'g': check_ghost_moves
     }
     piece_type = piece.image
     if piece_type[0] == 'b':
         op_colour = 'w'
     else:
         op_colour = 'b'
-    if piece_type in piece_types:
-        piece_types[piece_type](piece, op_colour)
+    if piece_type[1] in piece_types:
+        piece_types[piece_type[1]](piece, op_colour)
 
 
 def check_queen_moves(piece, op_colour):
@@ -553,4 +544,30 @@ def check_teddie_moves(piece, op_colour):
             elif current_square[0] == op_colour:
                 takeable.append(Actor(("take"), (y*60+30, (i+1)*60+30)))
             break
+
+def check_ghost_moves(piece, op_colour):
+    position = find_piece(piece)
+    x, y = position
+    x = int(x)
+    y = int(y)
+    # The different offsets for the ghost movement
+    ghost_moves = [
+        [-1, 3],
+        [1, 3],
+        [-1,-3],
+        [1, -3],
+        [3,1],
+        [3,-1],
+        [-3, 1],
+        [-3, -1],
+        ]
+    for i in range(len(ghost_moves)):
+        new_x = x + ghost_moves[i][1]
+        new_y = y + ghost_moves[i][0]
+        if new_x < 0 or new_x > 7 or new_y < 0 or new_y > 7:
+            continue
+        if board[new_x][new_y][0] == op_colour:
+            takeable.append(Actor(("take"), (new_y*60+30, new_x*60+30)))
+        elif board[new_x][new_y] == "__":
+            valid_moves.append(Actor(("moves"), (new_y*60+30, new_x*60+30)))
 pgzrun.go()
