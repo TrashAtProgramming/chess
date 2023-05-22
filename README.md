@@ -9,3 +9,5 @@ chess.py is just basic chess.
 chess_2 is a slightly altered version of the game
 
 To run, you need to have pygame zero added.
+
+for lanky man, copy:  "py -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-warn-script-location --user pgzero"
